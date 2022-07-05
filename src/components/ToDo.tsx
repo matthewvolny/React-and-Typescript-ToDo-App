@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ToDoItem } from "../models";
-import { AiFillDelete, AiOutlineCheck } from "react-icons/ai";
+import { AiFillEdit, AiFillDelete, AiOutlineCheck } from "react-icons/ai";
+import { isTemplateExpression } from "typescript";
 
 interface ToDoProps {
   todo: ToDoItem;
@@ -9,6 +10,9 @@ interface ToDoProps {
 }
 
 export const ToDo = ({ todo, toDosList, setToDosList }: ToDoProps) => {
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [editedTask, setEditedTask] = useState<string>(todo.text);
+
   const deleteToDo = (id: number) => {
     const toDosListCopy = [...toDosList];
     setToDosList(toDosListCopy.filter((item) => item.id !== id));
@@ -25,22 +29,46 @@ export const ToDo = ({ todo, toDosList, setToDosList }: ToDoProps) => {
     );
   };
 
+  const updateToDosArray = (e: React.FormEvent, id: number) => {
+    e.preventDefault();
+    const toDosListCopy = [...toDosList];
+    setToDosList(
+      toDosListCopy.map((item) =>
+        item.id === id ? { ...item, text: editedTask } : { ...item }
+      )
+    );
+    setEditMode(false);
+  };
+
+  const taskInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    taskInputRef.current?.focus();
+  }, [editMode]);
+
   return (
-    <div>
-      {todo.isCompleted ? (
+    <form onSubmit={(e) => updateToDosArray(e, todo.id)}>
+      {editMode ? (
+        <input
+          ref={taskInputRef}
+          type="text"
+          value={editedTask}
+          onChange={(e) => setEditedTask(e.target.value)}
+        />
+      ) : todo.isCompleted ? (
         <div className="struck-through">{todo.text}</div>
       ) : (
         <div>{todo.text}</div>
       )}
-      {/* <span>
-        <AiOutlineCheck onClick={() => editToDo(todo.id)} />
-      </span> */}
+      <span>
+        <AiFillEdit onClick={() => setEditMode(true)} />
+      </span>
       <span>
         <AiOutlineCheck onClick={() => updateCompleted(todo.id)} />
       </span>
       <span>
         <AiFillDelete onClick={() => deleteToDo(todo.id)} />
       </span>
-    </div>
+    </form>
   );
 };
