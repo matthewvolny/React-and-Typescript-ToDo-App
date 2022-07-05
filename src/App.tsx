@@ -27,7 +27,7 @@ function App() {
       <div>What would you like to do today?</div>
       <div>
         <TaskInput toDo={toDo} setToDo={setToDo} addToDo={addToDo} />
-        <ToDoItemsList toDosList={toDosList} />
+        <ToDoItemsList toDosList={toDosList} setToDosList={setToDosList} />
       </div>
     </div>
   );
